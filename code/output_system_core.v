@@ -13,11 +13,11 @@ module output_system_core(
     // 출력
     output [11:0] rgb_out, // FULL COLOR LED
     output [2:0] chance_led, // 남은 기회 led
-    output servo_pwm // servo motor
-    output piezo // piezo
+    output servo_pwm, // servo motor
+    output piezo, // piezo
     output[6:0] set_cathode, // 7세그먼트 문자 출력을 위함
     output[7:0] seg_anode, // 8-7세그먼트 어떤 자리 출력할지 결정
-    output[7:0] lcd_data // text lcd
+    output[7:0] lcd_data, // text lcd
     output lcd_en, lcd_rs, lcd_rw // lcd 컴트롤에 필요한 신호
 );
 
