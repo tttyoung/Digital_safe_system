@@ -13,7 +13,7 @@ module output_system_core(
     // 출력
     output [11:0] rgb_out, // FULL COLOR LED
     output [2:0] chance_led, // 남은 기회 led
-    output servo_pwm, // servo motor
+    output wire servo_pwm, // servo motor pwm
     output piezo, // piezo
     output[6:0] set_cathode, // 7세그먼트 문자 출력을 위함
     output[7:0] seg_anode, // 8-7세그먼트 어떤 자리 출력할지 결정
@@ -22,7 +22,6 @@ module output_system_core(
 );
 
 // wire 선언 (모듈 간의 신호를 연결하거나 데이터를 임시로 저장하는데 사용)
-wire servo_pwm_out; // Servo Motor Controller 모듈의 PWM 출력 신호를 임시로 받음
 wire [6:0] timer_seg_cathode_w; // 모듈에서 생성된 7세그먼트 패턴 데이터를 임시로 전달받음
 wire [7:0] timer_seg_anode_w; // 모듈에서 생성된 7세그먼트 8개의 셀 자리 신호를 임시로 받음.
 
@@ -37,6 +36,12 @@ feedback_controller U_FEEDBACK(
 );
 
 // 2. 서보모터 컨트롤러
+servo_controller U_SERVO (
+    .clk(clk),
+    .rst(rst),
+    .state(state),
+    .servo(servo_pwm)
+);
 
 // 3. 8cell 7세그먼트 display & chance led
 timer_display_mux U_TIMER_DISPLAY(

@@ -4,7 +4,7 @@ module feedback_controller(
     input [3:0] state,
     
     output reg [11:0] rgb_out,
-    output reg piezo_pwm
+    output wire piezo_pwm
 );
 
 // STATE를 명시하기 위한 상수
@@ -23,7 +23,7 @@ always @(posedge clk_1khz or posedge rst) begin
         blink_counter <= 10'd0;
         blink_1hz <= 1'b0;
     end else begin
-        if(blink_counter == 10'd500) begin // 매 0.5초마다 toggle
+        if(blink_counter == 10'd499) begin // 매 0.5초마다 toggle
             blink_1hz <= ~blink_1hz;
             blink_counter <= 10'd0;
         end else begin
@@ -46,26 +46,47 @@ end
 // piezo PWM 로직 
 reg [9:0] pwm_counter; // pwm 카운트 
 reg piezo_signal; // 출력을 위한 임시 변수
+reg [9:0] duration_counter; // 0.5초 톤 지속 시간 제어용 카운터
+wire duration_complete = (duration_counter == 10'd500); // 0.5초 신호 완료 플래그
 
 always @(posedge clk_1khz or posedge rst) begin
     if(rst) begin 
         pwm_counter <= 10'd0;
         piezo_signal <= 1'b0;
+        duration_counter <= 10'd0; 
     end else begin
-        if(state == SUCCESS) begin // 성공시 piezo 출력
-            piezo_signal <= ~piezo_signal; // high tone (~2khz)
-        end 
-        else if (state == FAIL || state == DEACTIVE) begin // 실패,비활성화 시 piezo 출력
+        // duration_counter 로직
+        if((state == SUCCESS || state == FAIL) && !duration_complete) begin
+            duration_counter <= duration_counter + 1'b1;
+        end else if (state != SUCCESS && state != FAIL) begin
+        // 다른 상태일 경우 리셋
+            duration_counter <= 10'd0; 
+        end
+        
+        if(state == SUCCESS && !duration_complete) begin // 성공시 piezo 출력
+            if(pwm_counter == 10'd0) begin
+                piezo_signal <= ~piezo_signal; // high tone (~2khz)
+                pwm_counter <= 10'd1;
+            end else begin pwm_counter <= 10'd0; end
+        end
+        
+        else if(state == FAIL && !duration_complete) begin // 실패시 piezo 출력
             if(pwm_counter == 10'd3) begin
-                piezo_signal <= ~piezo_signal; // low tone (~250hz) 
-                pwm_counter <= 10'd0;  
-            end
-            else begin
-                pwm_counter <= pwm_counter + 1;
-            end
-        end 
+                piezo_signal <= ~piezo_signal; // fail tone (~250hz)
+                pwm_counter <= 10'd0;
+            end else begin pwm_counter <= pwm_counter + 1; end
+        end
+        
+         else if(state == DEACTIVATE || state == EMERGENCY ) begin // 비활성화, 비상상황시 piezo 출력
+            if(blink_1hz) begin
+                if(pwm_counter == 10'd3) begin piezo_signal <= ~piezo_signal; pwm_counter <= 10'd0; end
+                else pwm_counter <= pwm_counter + 1;
+            end else begin pwm_counter <= 10'd0; piezo_signal <= 1'b0; end // mute
+        end
+        
         else begin  // default
-            pwm_signal <= 1'b0; // mute
+            pwm_counter <= 10'd0;
+            piezo_signal <= 1'b0; // mute
         end
     end
 end

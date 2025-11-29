@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:49 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Mon Nov 24 20:32:37 2025
+# Process ID: 9272
+# Current directory: C:/Users/sonhu/DigitalSafeSystem/DigitalSafeSystem/DigitalSafeSystem.runs/synth_1
+# Command line: vivado.exe -log output_test_driver.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source output_test_driver.tcl
+# Log file: C:/Users/sonhu/DigitalSafeSystem/DigitalSafeSystem/DigitalSafeSystem.runs/synth_1/output_test_driver.vds
+# Journal file: C:/Users/sonhu/DigitalSafeSystem/DigitalSafeSystem/DigitalSafeSystem.runs/synth_1\vivado.jou
+#-----------------------------------------------------------
+source output_test_driver.tcl -notrace
