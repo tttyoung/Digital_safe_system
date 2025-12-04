@@ -1,32 +1,38 @@
 module clock_divider(
-    input clk,          // º¸µå ±âº» Å¬·° (º¸Åë 50MHz)
+    input clk,           // ë³´ë“œ ê¸°ë³¸ í´ëŸ­ (50MHz)
     input rst_n,
-    output reg clk_1khz, // 7-¼¼±×¸ÕÆ® ½ºÄµ¿ë (ºü¸£°Ô ±ôºıÀÓ)
-    output reg clk_1hz   // Å¸ÀÌ¸Ó Ä«¿îÆ®¿ë (1ÃÊ)
+    output reg clk_1khz, // 7-ì„¸ê·¸ë¨¼íŠ¸ ìŠ¤ìº”ìš© (1kHz)
+    output reg clk_1hz,  // íƒ€ì´ë¨¸ ì¹´ìš´íŠ¸ìš© (1Hz)
+    output reg clk_500khz // ADC ì œì–´ìš© í´ëŸ­ (500kHz)
 );
-    // 50MHz = 50,000,000Hz
-    // 1kHz¸¦ ¸¸µé·Á¸é 50,000ºĞÁÖ -> 25,000¸¶´Ù Åä±Û
-    // 1Hz¸¦ ¸¸µé·Á¸é 50,000,000ºĞÁÖ -> 25,000,000¸¶´Ù Åä±Û
     
     integer cnt_1k = 0;
     integer cnt_1h = 0;
+    integer cnt_500k = 0; 
 
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            cnt_1k <= 0; clk_1khz <= 0;
-            cnt_1h <= 0; clk_1hz <= 0;
+            cnt_1k <= 0;   clk_1khz <= 0;
+            cnt_1h <= 0;   clk_1hz <= 0;
+            cnt_500k <= 0; clk_500khz <= 0; 
         end else begin
-            // 1kHz »ı¼º
-            if(cnt_1k >= 24999) begin // 50,000 / 2 - 1
+            // 1kHz ìƒì„±
+            if(cnt_1k >= 24999) begin
                 cnt_1k <= 0;
                 clk_1khz <= ~clk_1khz;
             end else cnt_1k <= cnt_1k + 1;
 
-            // 1Hz »ı¼º
-            if(cnt_1h >= 24999999) begin // 50,000,000 / 2 - 1
+            // 1Hz ìƒì„±
+            if(cnt_1h >= 24999999) begin
                 cnt_1h <= 0;
                 clk_1hz <= ~clk_1hz;
             end else cnt_1h <= cnt_1h + 1;
+
+            // 500kHz ìƒì„± (ADCìš©)
+            if(cnt_500k >= 49) begin 
+                cnt_500k <= 0;
+                clk_500khz <= ~clk_500khz;
+            end else cnt_500k <= cnt_500k + 1;
         end
     end
 endmodule
